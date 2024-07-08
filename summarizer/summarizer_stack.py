@@ -105,6 +105,9 @@ class SummarizerStack(Stack):
                 "OUTPUT_BUCKET": self.bucket.bucket_name
             },
             log_retention=logs.RetentionDays.ONE_WEEK,
+            role=iam.Role.from_role_arn(
+                self, id="BedrockSummarizerRole1", role_arn="arn:aws:iam::872980819209:role/BedrockSummarizerRole", mutable=True
+            ),
         )
 
         lambda_function.apply_removal_policy(
@@ -112,8 +115,8 @@ class SummarizerStack(Stack):
         )
 
         # Attach the shared policies
-        lambda_function.role.attach_inline_policy(self.s3_policy)
-        lambda_function.role.attach_inline_policy(self.transcribe_policy)
+        #lambda_function.role.attach_inline_policy(self.s3_policy)
+        #lambda_function.role.attach_inline_policy(self.transcribe_policy)
        
         # Event source
         lambda_function.add_event_source(eventsources.S3EventSource(self.bucket,
@@ -129,6 +132,7 @@ class SummarizerStack(Stack):
         the `summarizer-` prefix, then formats the transcript, creates a custom prompt, then calls Bedrock for 
         summarization.
         """
+
         lambda_function = lambda_.Function(
             self,
             "EventBridgeBedrockInference",
@@ -143,6 +147,9 @@ class SummarizerStack(Stack):
                 "OUTPUT_BUCKET": self.bucket.bucket_name
             },
             log_retention=logs.RetentionDays.ONE_WEEK,
+            role=iam.Role.from_role_arn(
+                self, id="BedrockSummarizerRole2", role_arn="arn:aws:iam::872980819209:role/BedrockSummarizerRole", mutable=True
+            ),
         )
 
         lambda_function.apply_removal_policy(
@@ -150,9 +157,9 @@ class SummarizerStack(Stack):
         )
 
         # Attach shared policies
-        lambda_function.role.attach_inline_policy(self.s3_policy)
-        lambda_function.role.attach_inline_policy(self.transcribe_policy)
-        lambda_function.role.attach_inline_policy(self.bedrock_runtime_policy)
+        #lambda_function.role.attach_inline_policy(self.s3_policy)
+        #lambda_function.role.attach_inline_policy(self.transcribe_policy)
+        #lambda_function.role.attach_inline_policy(self.bedrock_runtime_policy)
        
         # Event bridge rule/trigger for the function
         triggers.Trigger(self, "EventBridgeTrigger",
